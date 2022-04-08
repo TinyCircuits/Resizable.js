@@ -19,6 +19,10 @@ Resizable.Classes = {
 
 
 Resizable.initialise = function(parentId, initialSizes, resizerThickness){
+  Resizable.activeContentWindows = [];
+  Resizable.activeResizers = [];
+  Resizable.currentResizer = null;
+
   //Find left window
   Resizable.resizerThickness = resizerThickness ? resizerThickness : 4;
   Resizable.initialSizes = initialSizes;
@@ -151,18 +155,18 @@ Resizable.ContentWindow = class{
       case Resizable.Sides.TOP:
         //Based on position of resizer line
         this.changeSize(this.parent.width, parseInt(this.parent.getDiv().style.height) - mousePos);
-        this.getDiv().style.top = Math.round(mousePos) +"px";
+        this.getDiv().style.top = Math.round(mousePos) + Resizable.resizerThickness + "px";
         break;
       case Resizable.Sides.BOTTOM:
-        this.changeSize(this.parent.width, mousePos - this.getDiv().getBoundingClientRect().top);
+        this.changeSize(this.parent.width, mousePos - Resizable.resizerThickness - this.getDiv().getBoundingClientRect().top);
         break;
       case Resizable.Sides.LEFT:   
         //Based on position of resizer line
-        this.changeSize(parseInt(this.parent.getDiv().style.width) - mousePos, this.parent.height);
-        this.getDiv().style.left = Math.round(mousePos) +"px";
+        this.changeSize(parseInt(this.parent.getDiv().style.width) - Resizable.resizerThickness - mousePos, this.parent.height);
+        this.getDiv().style.left = Math.round(mousePos) + Resizable.resizerThickness + "px";
         break;
       case Resizable.Sides.RIGHT:
-        this.changeSize(mousePos - this.getDiv().getBoundingClientRect().left, this.parent.height);
+        this.changeSize(mousePos - Resizable.resizerThickness - this.getDiv().getBoundingClientRect().left, this.parent.height);
         break;
       default:
         console.error("Window.resize: incorrect side");
@@ -333,7 +337,7 @@ Resizable.ContentWindow = class{
     }
 
     var w1 = new Resizable.ContentWindow(this, leftWidth, this.height, leftDiv);
-    var w2 = new Resizable.ContentWindow(this, this.width - leftWidth - this.childResizerThickness/2, this.height, rightDiv);
+    var w2 = new Resizable.ContentWindow(this, this.width - leftWidth - this.childResizerThickness, this.height, rightDiv);
     w2.getDiv().style.left = Math.round(leftWidth + this.childResizerThickness/2) + "px";
 
     this.childResizer = new Resizable.Resizer(this, w1, w2, true);
@@ -358,7 +362,7 @@ Resizable.ContentWindow = class{
       this.getDiv().appendChild(bottomDiv);
 
     var w1 = new Resizable.ContentWindow(this, this.width, topHeight - this.childResizerThickness/2, topDiv);
-    var w2 = new Resizable.ContentWindow(this, this.width, this.height - topHeight - this.childResizerThickness/2, bottomDiv);
+    var w2 = new Resizable.ContentWindow(this, this.width, this.height - topHeight - this.childResizerThickness, bottomDiv);
     w2.getDiv().style.top = Math.round(topHeight + this.childResizerThickness/2)  + "px";
 
     this.childResizer = new Resizable.Resizer(this, w1, w2, false);
